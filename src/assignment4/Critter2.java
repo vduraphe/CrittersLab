@@ -1,9 +1,18 @@
 package assignment4;
-
+/*
+ * /* CRITTERS Critter2.java
+ * EE422C Project 4 submission by
+ * Vaidehi Duraphe
+ * vd5374
+ * Anika Agarwal
+ * aa59662
+ * Slip days used: <0>
+ * Spring 18
+ */
 import java.util.List;
 /**
  * Side Side critter is only capable of moving in two directions-- left or right.
- * @author Vaidehi
+ * @author Vaidehi and Anika 
  *
  */
 public class Critter2 extends Critter.TestCritter{
@@ -12,16 +21,13 @@ public class Critter2 extends Critter.TestCritter{
 
 	@Override
 	public void doTimeStep() {
-		// Move
 		walk(direction);		
-
-		// Reproduce
 		if (getEnergy() > 150) {
 			Critter2 sideCrit = new Critter2();
 			reproduce(sideCrit, Critter.getRandomInt(8));
 		}	
 
-		// Turn -- bishop style movement (diagonals only)
+		// side side movement
 			int new_dir = Critter.getRandomInt(2);
 			switch(new_dir) {
 				case 0: 
@@ -33,7 +39,6 @@ public class Critter2 extends Critter.TestCritter{
 
 	@Override
 	public boolean fight(String oponent) {
-		// TODO Auto-generated method stub
 		return true;
 	}
 

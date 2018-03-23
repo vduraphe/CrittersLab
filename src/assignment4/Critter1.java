@@ -1,7 +1,21 @@
 package assignment4;
+/*
+ * /* CRITTERS Critter1.java
+ * EE422C Project 4 submission by
+ * Vaidehi Duraphe
+ * vd5374
+ * Anika Agarwal
+ * aa59662
+ * Slip days used: <0>
+ * Spring 18
+ */
 
 import java.util.List;
-
+/**
+ * Critter only moves in diagonals
+ * @author Vaidehi
+ *
+ */
 public class Critter1 extends Critter.TestCritter{
 
 	private int direction;
@@ -9,16 +23,13 @@ public class Critter1 extends Critter.TestCritter{
 	@Override
 	public void doTimeStep() {
 		// TODO Auto-generated method stub
-		// Move
 		walk(direction);
-
-		// Reproduce
 		if (getEnergy() > 150) {
 			Critter1 smolCrit = new Critter1();
 			reproduce(smolCrit, Critter.getRandomInt(8));
 		}
 
-		// Turn -- bishop style movement (diagonals only)
+		// diag movement only
 		int new_dir = Critter.getRandomInt(4);
 		switch(new_dir) {
 			case 0: 
@@ -34,7 +45,6 @@ public class Critter1 extends Critter.TestCritter{
 
 	@Override
 	public boolean fight(String oponent) {
-		// TODO Auto-generated method stub
 		return true;
 	}
 

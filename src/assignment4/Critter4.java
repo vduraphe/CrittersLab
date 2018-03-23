@@ -1,9 +1,18 @@
 package assignment4;
-
+/*
+ * CRITTERS Critter4.java
+ * EE422C Project 4 submission by
+ * Vaidehi Duraphe
+ * vd5374
+ * Anika Agarwal
+ * aa59662
+ * Slip days used: <0>
+ * Spring 18
+ */
 import java.util.List;
 /**
  * RunCrit is only capable of running (in any direction)
- * @author Vaidehi
+ * @author Vaidehi and anika
  *
  */
 public class Critter4 extends Critter.TestCritter{
@@ -12,17 +21,11 @@ public class Critter4 extends Critter.TestCritter{
 
 	@Override
 	public void doTimeStep() {
-		// TODO Auto-generated method stub
-		// Move
 		run(direction);		
-
-		// Reproduce
 		if (getEnergy() > 150) {
 			Critter4 RunCrit = new Critter4();
 			reproduce(RunCrit, Critter.getRandomInt(8));
 		}	
-
-		// Turn -- bishop style movement (diagonals only)
 			int new_dir = Critter.getRandomInt(2);
 			switch(new_dir) {
 				case 0: 

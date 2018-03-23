@@ -1,15 +1,13 @@
 package assignment4;
-/* CRITTERS Critter.java
+/*
+ * CRITTERS Critter2.java
  * EE422C Project 4 submission by
- * Replace <...> with your actual data.
- * <Student1 Name>
- * <Student1 EID>
- * <Student1 5-digit Unique No.>
- * <Student2 Name>
- * <Student2 EID>
- * <Student2 5-digit Unique No.>
+ * Vaidehi Duraphe
+ * vd5374
+ * Anika Agarwal
+ * aa59662
  * Slip days used: <0>
- * Fall 2016
+ * Spring 18
  */
 
 
@@ -279,31 +277,33 @@ public abstract class Critter {
 	 */
 	public static void worldTimeStep() {
 		for (Critter c : population) {
+			//do time step for every crit in population
 			c.doTimeStep();
 		}
 		for (Critter crit1 : population) {
-			for (Critter c2 : population) {
-				if (!(crit1.equals(c2)) && (crit1.x_coord == c2.x_coord) && (crit1.y_coord == c2.y_coord)) {                      
+			for (Critter crit2 : population) {
+				if (!(crit1.equals(crit2)) && (crit1.x_coord == crit2.x_coord) && (crit1.y_coord == crit2.y_coord)) {                      
 					// handle encounter if crits in same spot and not the same crit
-					handleEncounter(crit1, c2);
+					handleEncounter(crit1, crit2);
 				}
 			}
 		}
+		//avoid concurrent modification by using iterator
 		Iterator<Critter> critIt = population.iterator();
 		while (critIt.hasNext()) {
 			Critter check = critIt.next();
 			check.energy -= Params.rest_energy_cost;
+			//if dead
 			if (check.energy <= 0) {
 				critIt.remove();
 			}
 		}
-
 		for (int i = 0; i < Params.refresh_algae_count; i++) {
-			Algae newAlgae = new Algae();
-			newAlgae.setEnergy(Params.start_energy);
-			newAlgae.setX_coord(getRandomInt(Params.world_width));
-			newAlgae.setY_coord(getRandomInt(Params.world_height));
-			population.add(newAlgae);
+			Algae babyAlg = new Algae();
+			babyAlg.setEnergy(Params.start_energy);
+			babyAlg.setX_coord(getRandomInt(Params.world_width));
+			babyAlg.setY_coord(getRandomInt(Params.world_height));
+			population.add(babyAlg);
 		}
 		
 	}
@@ -353,10 +353,10 @@ public abstract class Critter {
 	 * @param crit2 Critter object 2
 	 */
 	private static void handleEncounter(Critter crit1, Critter crit2) {
-		boolean crit1Fight = crit1.fight(crit2.toString());
-		boolean crit2Fight = crit2.fight(crit1.toString());
 		int crit1Roll = 0;
 		int crit2Roll = 0;
+		boolean crit1Fight = crit1.fight(crit2.toString());
+		boolean crit2Fight = crit2.fight(crit1.toString());
 		if ((crit1.x_coord == crit2.x_coord) && (crit1.y_coord == crit2.y_coord) && (crit1.energy != 0) && (crit2.energy!= 0)) {
 			if (crit1Fight == true) {
 				if (crit1.energy > 0) {
