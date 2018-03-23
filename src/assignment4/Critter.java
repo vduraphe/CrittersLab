@@ -23,7 +23,11 @@ import java.util.List;
  * no new public, protected or default-package code or data can be added to Critter
  */
 
-
+/**
+ * Creates a critter, creates methods for it to move/reproduce/fight and handles all of its interactions
+ * @author Vaidehi
+ *
+ */
 public abstract class Critter {
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
@@ -52,17 +56,27 @@ public abstract class Critter {
 	
 	private int x_coord;
 	private int y_coord;
-	
+	/**
+	 * Moves 1 tile
+	 * @param direction : direction crit moves in
+	 */
 	protected final void walk(int direction) {
 		move(direction,1);
 		energy -= Params.walk_energy_cost;
 	}
-	
+	/**
+	 * Moves 2 tiles in a direction, direction given by parameter
+	 * @param direction the direction crit moves in
+	 */
 	protected final void run(int direction) {
-		move(direction,1);
+		move(direction,2);
 		energy -= Params.run_energy_cost;
 	}
-	
+	/**
+	 * moves the critter num of spots based on param tiles in a direction based on param dir
+	 * @param dir direction crit moves in
+	 * @param tiles how many spaces it moves
+	 */
 	protected final void move(int dir, int tiles) {
 		int width = Params.world_width;
 		int height = Params.world_height;
@@ -99,9 +113,17 @@ public abstract class Critter {
 			break;
 		}
 	}
+	/**
+	 * subtracts rest energy from critter
+	 */
 	protected final void rest() {
 		energy -= Params.rest_energy_cost;
 	}
+	/**
+	 * Creates a new critter if original critter energy is greater than reproduction energy needed. adds to babies list.
+	 * @param offspring
+	 * @param direction
+	 */
 	protected final void reproduce(Critter offspring, int direction) {
 		if (this.energy >= Params.min_reproduce_energy) {
 			energy = (int) Math.ceil(0.5 * energy);
@@ -133,7 +155,7 @@ public abstract class Critter {
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		try {
-			Class c = Class.forName("assignment4." +critter_class_name);
+			Class c = Class.forName(myPackage + "." + critter_class_name);
 			Critter myNewCritter = (Critter) c.newInstance();
 			myNewCritter.energy = Params.start_energy;
 			myNewCritter.x_coord = getRandomInt(Params.world_width);
@@ -155,8 +177,16 @@ public abstract class Critter {
 	 */
 	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
 		List<Critter> result = new java.util.ArrayList<Critter>();
-		for(int i = 0; i < population.size(); i++) {
-			result.add(population.get(i));
+		try {
+			Class critType = Class.forName(myPackage + "." + critter_class_name);
+			for(int i = 0; i < population.size(); i++) {
+				Critter c = population.get(i);
+				if (critType.isInstance(c)) {
+					result.add(c);
+				}
+			}
+		} catch (Exception e) {
+			throw new InvalidCritterException(critter_class_name);
 		}
 		return result;
 	}
@@ -245,7 +275,7 @@ public abstract class Critter {
 	}
 
 	/**
-	 * 
+	 * each critter does its time step, dead crits eliminated, algae refreshed
 	 */
 	public static void worldTimeStep() {
 		for (Critter c : population) {
@@ -253,7 +283,8 @@ public abstract class Critter {
 		}
 		for (Critter crit1 : population) {
 			for (Critter c2 : population) {
-				if (!(crit1.equals(c2)) && (crit1.x_coord == c2.x_coord) && (crit1.y_coord == c2.y_coord)) {                        //only resolve conflict if we are not looking at the same critter
+				if (!(crit1.equals(c2)) && (crit1.x_coord == c2.x_coord) && (crit1.y_coord == c2.y_coord)) {                      
+					// handle encounter if crits in same spot and not the same crit
 					handleEncounter(crit1, c2);
 				}
 			}
@@ -280,28 +311,33 @@ public abstract class Critter {
 	 * prints out the world, including borders
 	 */
 	public static void displayWorld() {
-		System.out.print('+');																							//Prints out top border
+		
+		System.out.print('+');	
 		for (int i = 0; i < (Params.world_width); i++) {
 			System.out.print('-');
 		}
 		System.out.print('+');
 		System.out.println();
-
-		for (int y = 0; y < Params.world_height; y ++) {
+		boolean critYes = false;
+		for (int y = 0; y < Params.world_height; y++) {
 			System.out.print('|');
 			for (int x = 0; x < Params.world_width; x++) {
 				for (Critter c : population) {
-					if (c.x_coord == x && c.y_coord == y) {																//Print out if critter found with same coordinates as current x and y
+					if (c.x_coord == x && c.y_coord == y) {								
 						System.out.print(c.toString());
 						x++;
+						critYes = true;
 					}
 				}
-				if (x != Params.world_width) System.out.print(" ");
+				if (x < Params.world_width && critYes == false) {
+					System.out.print(" ");
+				}
+				critYes = false;
 			}
 			System.out.println('|');
 		}
 
-		System.out.print('+');																							//Prints out bottom border
+		System.out.print('+');																
 		for (int i = 0; i < (Params.world_width); i++) {
 			System.out.print('-');
 		}
@@ -341,7 +377,8 @@ public abstract class Critter {
 				crit1.energy += crit2.energy/2;
 				crit2.energy = 0;
 
-			} else {	 //it's a tie														
+			} else {	
+				//tie
 				crit1.energy += crit2.energy/2;
 				crit2.energy = 0;
 			}

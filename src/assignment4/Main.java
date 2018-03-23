@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.io.*;
 import java.lang.Integer;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import static java.lang.Float.NaN;
 
@@ -54,25 +55,25 @@ public class Main {
      * @throws IllegalArgumentException 
      */
     public static void main(String[] args) throws InvalidCritterException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException { 
-        if (args.length != 0) {
+    		if (args.length != 0) {
             try {
-                inputFile = args[0];
-                kb = new Scanner(new File(inputFile));			
+                	inputFile = args[0];
+                	kb = new Scanner(new File(inputFile));	
             } catch (FileNotFoundException e) {
-                System.out.println("USAGE: java Main OR java Main <input file> <test output>");
-                e.printStackTrace();
+                	System.out.println("USAGE: java Main OR java Main <input file> <test output>");
+                	e.printStackTrace();
             } catch (NullPointerException e) {
-                System.out.println("USAGE: java Main OR java Main <input file>  <test output>");
+                	System.out.println("USAGE: java Main OR java Main <input file>  <test output>");
             }
             if (args.length >= 2) {
-                if (args[1].equals("test")) { // if the word "test" is the second argument to java
-                    // Create a stream to hold the output
-                    testOutputString = new ByteArrayOutputStream();
-                    PrintStream ps = new PrintStream(testOutputString);
-                    // Save the old System.out.
-                    old = System.out;
-                    // Tell Java to use the special stream; all console output will be redirected here from now
-                    System.setOut(ps);
+                	if (args[1].equals("test")) { // if the word "test" is the second argument to java
+                		// Create a stream to hold the output
+                		testOutputString = new ByteArrayOutputStream();
+                		PrintStream ps = new PrintStream(testOutputString);
+                    	// Save the old System.out.
+                		old = System.out;
+                		// Tell Java to use the special stream; all console output will be redirected here from now
+                		System.setOut(ps);
                 }
             }
         } else { // if no arguments to main
@@ -81,82 +82,119 @@ public class Main {
 
         /* Do not alter the code above for your submission. */
         /* Write your code below. */
+    		String input = "";
         boolean isQuit = false;
         while(!isQuit){
             System.out.print("critters>");
-            List<String> command = parse(kb);
-
+            input = kb.nextLine();
+            List<String> command = parse(input);
             switch(command.get(0)){
-                case "quit":  isQuit = true;
+                case "quit":  
+                		if (command.size() > 1 ) {
+                			System.out.println("error processing: " + input);
+                			continue;
+                		}
+                		isQuit = true;
+                    break;
+                case "show":  
+                		if(command.size() > 1) {
+                			System.out.println("error processing: " + input);
+                			continue;
+                		}
+                		Critter.displayWorld();
                     break;
 
-                case "show":  Critter.displayWorld(); // todo Make sure this is called on right instance
-                    break;
-
-                case "step":  int count = 1;
-                    if(command.size() > 1){ // prevent null pointer if 1 arg
-                        if(Integer.parseInt(command.get(1)) != NaN){ // check if 2nd arg is a #
-                            count = Integer.parseInt(command.get(1));
-                        }
-                    }
-
-                    for(int i = 0; i < count; i++){
-                        Critter.worldTimeStep();
-                    }
-                    break;
+                case "step":  
+                		int count = 1;
+                		if(command.size() > 2) {
+                			System.out.println("error processing: " + input);
+                			continue;
+                		}
+                		else if(command.size() == 2){
+                			try {
+                				count = Integer.parseInt(command.get(1));
+            				
+                			} catch(Exception e) {
+                				System.out.println("error processing: " + input);
+                				continue;
+                			}
+                		} else {
+                			count = Integer.parseInt(command.get(1));
+                		}
+                		
+                		for(int i = 0; i < count; i++){
+                			Critter.worldTimeStep();
+                		}
+                		break;
 
                 case "seed":
-                    if(command.size() < 2){ // Check for args
-                        break;
-                    }
-                    Critter.setSeed(Integer.parseInt(command.get(1)));
-                    break;
-
+                		if(command.size() > 2 && command.size() < 2) {
+                			System.out.println("error processing: " + input);
+                			continue;
+                		}
+                		try {
+                			Critter.setSeed(Integer.parseInt(command.get(1)));
+                		} catch(Exception e){
+                			System.out.println("error processing: " + input);
+                			continue;
+                		}
+                		break;
                 case "make":
-                    if(command.size() < 2){ // Check for args
-                        break;
-                    }
-                    count = 1; // Count = 3rd arg, default 1
-                    if(command.size() > 2){ // prevent null pointer if 1 arg
-                        if(Integer.parseInt(command.get(2)) != NaN){ // check if 2nd arg is a #
-                            count = Integer.parseInt(command.get(2));
-                        }
-                    }
-
-                    for(int i = 0; i < count; i++){
-                        Critter.makeCritter(command.get(1));
-                    }
-                    break;
-
+                		count = 1;
+                		if( (command.size() <= 1) || (command.size() > 3)) {
+                			System.out.println("error processing: " + input);
+                			continue;
+                		}
+                		else if(command.size() == 3) {
+                			try {
+                				count = Integer.parseInt(command.get(2));
+            				
+                			} catch(Exception e) {
+                				System.out.println("error processing: " + input);
+                				continue;
+                			}
+                		}
+                		try {
+                			for(int i=0; i<count; i++) {
+                				Critter.makeCritter(command.get(1));
+                			}
+                		} catch(InvalidCritterException e){
+                			System.out.println("error processing: " + e);
+                			continue;
+                		}
+                		break;
                 case "stats":
-                    if(command.size() < 2){ // Check for args
+                    if(command.size() < 2){
                         break;
                     }
                     List<Critter> instances = Critter.getInstances(command.get(1));
-                    // run stats for that class - static method
                     try {
-                        Class c = Class.forName("assignment4."+ command.get(1));
-                        Critter myNewCritter = (Critter) c.newInstance();
-                        myNewCritter.runStats(instances);
+                        Class<?> c = Class.forName(myPackage + "." + command.get(1));
+                        java.lang.reflect.Method runStats = c.getMethod("runStats", List.class);
+    						runStats.invoke(c, instances);
                     }
                     catch (Exception e) {
                         throw new InvalidCritterException(command.get(1));
+                
                     }
                     break;
 
                 default:  break;
             }
-            System.out.println();
         }
         
         /* Write your code above */
         System.out.flush();
 
     }
-    static List<String> parse(Scanner kb){
+    /**
+     * Parses the input into a list for processing
+     * @param input String input from console
+     * @return list of words in input
+     */
+    static List<String> parse(String input){
         List<String> output = new ArrayList<>();
-        String command = kb.nextLine();
-        output = Arrays.asList(command.split(" "));
+        output = Arrays.asList(input.split(" "));
         return output;
     }
 }
