@@ -2,44 +2,31 @@ package assignment4;
 
 import java.util.List;
 /**
- * RunCrit is only capable of running (in any direction)
+ * Side Side critter is only capable of moving in two directions-- left or right.
  * @author Vaidehi
  *
  */
-public class RunCrit extends Critter.TestCritter{
+public class Critter2 extends Critter.TestCritter{
 	
 	private int direction;
 
 	@Override
 	public void doTimeStep() {
-		// TODO Auto-generated method stub
 		// Move
-		run(direction);		
+		walk(direction);		
 
 		// Reproduce
 		if (getEnergy() > 150) {
-			RunCrit RunCrit = new RunCrit();
-			reproduce(RunCrit, Critter.getRandomInt(8));
+			Critter2 sideCrit = new Critter2();
+			reproduce(sideCrit, Critter.getRandomInt(8));
 		}	
 
 		// Turn -- bishop style movement (diagonals only)
 			int new_dir = Critter.getRandomInt(2);
 			switch(new_dir) {
 				case 0: 
-					direction = 1; 
+					direction = 4; 
 				case 1: 
-					direction = 2;
-				case 2: 
-					direction = 3; 
-				case 3: 
-					direction = 4;
-				case 4: 
-					direction = 5; 
-				case 5: 
-					direction = 6;
-				case 6: 
-					direction = 7; 
-				case 7: 
 					direction = 8;
 			}
 	}
@@ -51,10 +38,10 @@ public class RunCrit extends Critter.TestCritter{
 	}
 
 	public String toString() { 
-		return "*";
+		return "2";
 	}
 	
-	public RunCrit() {
+	public Critter2() {
 		direction = Critter.getRandomInt(8);
 	}
 	

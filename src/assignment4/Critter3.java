@@ -2,7 +2,7 @@ package assignment4;
 
 import java.util.List;
 
-public class UpDownCrit extends Critter.TestCritter{
+public class Critter3 extends Critter.TestCritter{
 
 	private int direction;
 
@@ -14,7 +14,7 @@ public class UpDownCrit extends Critter.TestCritter{
 
 		// Reproduce
 		if (getEnergy() > 150) {
-			UpDownCrit upCrit = new UpDownCrit();
+			Critter3 upCrit = new Critter3();
 			reproduce(upCrit, Critter.getRandomInt(8));
 		}
 
@@ -35,10 +35,10 @@ public class UpDownCrit extends Critter.TestCritter{
 	}
 
 	public String toString() { 
-		return "|";
+		return "3";
 	}
 
-	public UpDownCrit() {
+	public Critter3() {
 		direction = Critter.getRandomInt(8);
 	}
 

@@ -2,7 +2,7 @@ package assignment4;
 
 import java.util.List;
 
-public class DiagCritter extends Critter.TestCritter{
+public class Critter1 extends Critter.TestCritter{
 
 	private int direction;
 
@@ -14,7 +14,7 @@ public class DiagCritter extends Critter.TestCritter{
 
 		// Reproduce
 		if (getEnergy() > 150) {
-			DiagCritter smolCrit = new DiagCritter();
+			Critter1 smolCrit = new Critter1();
 			reproduce(smolCrit, Critter.getRandomInt(8));
 		}
 
@@ -39,10 +39,10 @@ public class DiagCritter extends Critter.TestCritter{
 	}
 
 	public String toString() { 
-		return "+";
+		return "1";
 	}
 
-	public DiagCritter() {
+	public Critter1() {
 		direction = Critter.getRandomInt(8);
 	}
 
