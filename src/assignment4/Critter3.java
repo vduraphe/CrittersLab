@@ -50,4 +50,9 @@ public class Critter3 extends Critter.TestCritter{
 		direction = Critter.getRandomInt(8);
 	}
 
+	@Override
+	public CritterShape viewShape() {
+		return CritterShape.DIAMOND;
+	}
+
 }

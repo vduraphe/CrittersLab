@@ -11,9 +11,29 @@ package assignment4;
  */
 
 
+import javafx.geometry.Insets;
+import javafx.scene.control.Button;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
+import javafx.stage.Stage;
+import javafx.scene.shape.*;
+
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.ArcType;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.layout.*;
+import javafx.scene.text.*;
+
+import java.util.Iterator;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /* see the PDF for descriptions of the methods and fields in this class
@@ -27,9 +47,41 @@ import java.util.List;
  *
  */
 public abstract class Critter {
+	
+	/* NEW FOR PROJECT 5 */
+	public enum CritterShape {
+		CIRCLE,
+		SQUARE,
+		TRIANGLE,
+		DIAMOND,
+		STAR
+	}
+	
+	/* the default color is white, which I hope makes critters invisible by default
+	 * If you change the background color of your View component, then update the default
+	 * color to be the same as you background 
+	 * 
+	 * critters must override at least one of the following three methods, it is not 
+	 * proper for critters to remain invisible in the view
+	 * 
+	 * If a critter only overrides the outline color, then it will look like a non-filled 
+	 * shape, at least, that's the intent. You can edit these default methods however you 
+	 * need to, but please preserve that intent as you implement them. 
+	 */
+	public javafx.scene.paint.Color viewColor() { 
+		return javafx.scene.paint.Color.CADETBLUE; 
+	}
+	
+	public javafx.scene.paint.Color viewOutlineColor() { return viewColor(); }
+	public javafx.scene.paint.Color viewFillColor() { return viewColor(); }
+	
+	public abstract CritterShape viewShape(); 
+
+	
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
+	private static Critter[][] grid = new Critter[Params.world_width][Params.world_height];
 
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
@@ -39,6 +91,76 @@ public abstract class Critter {
 	private static java.util.Random rand = new java.util.Random();
 	public static int getRandomInt(int max) {
 		return rand.nextInt(max);
+	}
+	
+	protected final String look(int direction, boolean steps) {
+		int num = 1;
+		int x = x_coord;
+		int y = y_coord;
+
+		if(steps){
+			num = 2;
+		}
+
+		switch(++direction){
+			case 1:
+				x += num;
+				break;
+			case 2:
+				x += num;
+				y -= num;
+				break;
+			case 3:
+				y -= num;
+				break;
+			case 4:
+				x -= num;
+				y -= num;
+				break;
+			case 5:
+				x -= num;
+				break;
+			case 6:
+				x -= num;
+				y += num;
+				break;
+			case 7:
+				y += num;
+				break;
+			case 8:
+				x += num;
+				y += num;
+				break;
+			default:
+				break;
+		}
+
+		if(x > Params.world_width - 1) {
+			x = (x % (Params.world_width - 1)) - 1;
+		}
+		if(y > Params.world_height - 1) {
+			y = (y_coord % (Params.world_height - 1)) - 1;
+		}
+		if(x < 0) {
+			x += Params.world_width;
+		}
+		if(y < 0) {
+			y += Params.world_height;
+		}
+
+		energy -= Params.look_energy_cost;
+
+		return checkLook(x, y);
+	}
+
+	// helper bc we lazy f u
+	private static String checkLook(int temp_x, int temp_y){
+		for (Critter c : population) {
+			if((c.x_coord == temp_x) && (c.y_coord == temp_y) ){
+				return c.toString();
+			}
+		}
+		return null;
 	}
 	
 	public static void setSeed(long new_seed) {
@@ -54,6 +176,8 @@ public abstract class Critter {
 	
 	private int x_coord;
 	private int y_coord;
+	private static int size = 500/Params.world_width;
+
 	/**
 	 * Moves 1 tile
 	 * @param direction : direction crit moves in
@@ -80,32 +204,48 @@ public abstract class Critter {
 		int height = Params.world_height;
 		switch(dir) {
 		case 0: 
+			grid[x_coord][y_coord] = null;
 			x_coord = (x_coord+tiles) % width;
+			grid[x_coord][y_coord] = this;
 			break;
 		case 1:
+			grid[x_coord][y_coord] = null;
 			x_coord = (x_coord+tiles) % width;
 			y_coord = (x_coord+tiles) % height;
+			grid[x_coord][y_coord] = this;
 			break;
 		case 2:
+			grid[x_coord][y_coord] = null;
 			y_coord = (y_coord+tiles) % height;
+			grid[x_coord][y_coord] = this;
 			break;
 		case 3:
+			grid[x_coord][y_coord] = null;
 			x_coord = (x_coord-tiles + width) % width;
 			y_coord = (y_coord+tiles) % height;
+			grid[x_coord][y_coord] = this;
 			break;
 		case 4:
+			grid[x_coord][y_coord] = null;
 			x_coord = (x_coord-tiles + width) % width;
+			grid[x_coord][y_coord] = this;
 			break;
 		case 5:
+			grid[x_coord][y_coord] = null;
 			x_coord = (x_coord-tiles + width) % width;
 			y_coord = (y_coord-tiles + height) % height;
+			grid[x_coord][y_coord] = this;
 			break;
 		case 6:
+			grid[x_coord][y_coord] = null;
 			y_coord = (y_coord-tiles + height) % height;
+			grid[x_coord][y_coord] = this;
 			break;
 		case 7:
+			grid[x_coord][y_coord] = null;
 			x_coord = (x_coord+tiles) % width;
 			y_coord = (y_coord-tiles + height) % height;
+			grid[x_coord][y_coord] = this;
 			break;
 		default:
 			break;
@@ -131,6 +271,7 @@ public abstract class Critter {
 			offspring.energy += 2;
 			offspring.walk(direction);
 			babies.add(offspring);
+			grid[offspring.x_coord][offspring.y_coord] = offspring;
 		}
 	}
 
@@ -159,6 +300,8 @@ public abstract class Critter {
 			myNewCritter.x_coord = getRandomInt(Params.world_width);
 			myNewCritter.y_coord = getRandomInt(Params.world_height);
 			population.add(myNewCritter);
+            grid[myNewCritter.x_coord][myNewCritter.y_coord] = myNewCritter;
+
 
 		}
 		catch (Exception e) {
@@ -193,7 +336,7 @@ public abstract class Critter {
 	 * Prints out how many Critters of each type there are on the board.
 	 * @param critters List of Critters.
 	 */
-	public static void runStats(List<Critter> critters) {
+	public static String runStats(List<Critter> critters) {
 		System.out.print("" + critters.size() + " critters as follows -- ");
 		java.util.Map<String, Integer> critter_count = new java.util.HashMap<String, Integer>();
 		for (Critter crit : critters) {
@@ -206,11 +349,13 @@ public abstract class Critter {
 			}
 		}
 		String prefix = "";
+		String output = "";
 		for (String s : critter_count.keySet()) {
-			System.out.print(prefix + s + ":" + critter_count.get(s));
+			output += prefix + s + ":" + critter_count.get(s);
 			prefix = ", ";
 		}
-		System.out.println();		
+		return output;
+		
 	}
 	
 	/* the TestCritter class allows some critters to "cheat". If you want to 
@@ -285,7 +430,7 @@ public abstract class Critter {
 				if (!(crit1.equals(crit2)) && (crit1.x_coord == crit2.x_coord) && (crit1.y_coord == crit2.y_coord)) {                      
 					// handle encounter if crits in same spot and not the same crit
 					handleEncounter(crit1, crit2);
-				}
+				} 
 			}
 		}
 		//avoid concurrent modification by using iterator
@@ -296,6 +441,7 @@ public abstract class Critter {
 			//if dead
 			if (check.energy <= 0) {
 				critIt.remove();
+				grid[check.x_coord][check.y_coord] = null;
 			}
 		}
 		for (int i = 0; i < Params.refresh_algae_count; i++) {
@@ -304,48 +450,35 @@ public abstract class Critter {
 			babyAlg.setX_coord(getRandomInt(Params.world_width));
 			babyAlg.setY_coord(getRandomInt(Params.world_height));
 			population.add(babyAlg);
+			grid[babyAlg.getX_coord()][babyAlg.getY_coord()] = babyAlg;
 		}
 		
 	}
 	/**
 	 * prints out the world, including borders
 	 */
-	public static void displayWorld() {
-		
-		System.out.print('+');	
-		for (int i = 0; i < (Params.world_width); i++) {
-			System.out.print('-');
+	public static void displayWorld(GridPane gridPane) {
+		gridPane.getChildren().clear();
+		for (int r = 0; r < Params.world_width; r++) {
+            for (int c = 0; c < Params.world_height; c++) {
+                Shape s = new Rectangle(size, size);
+                s.setFill(null);
+                s.setStroke(Color.BLACK);
+                gridPane.add(s, c, r);
+            }
 		}
-		System.out.print('+');
-		System.out.println();
-		boolean critYes = false;
-		for (int y = 0; y < Params.world_height; y++) {
-			System.out.print('|');
-			for (int x = 0; x < Params.world_width; x++) {
-				for (Critter c : population) {
-					if (c.x_coord == x && c.y_coord == y) {								
-						System.out.print(c.toString());
-						x++;
-						critYes = true;
-					}
-				}
-				if (x < Params.world_width && critYes == false) {
-					System.out.print(" ");
-				}
-				critYes = false;
-			}
-			System.out.println('|');
+		for (int r = 0; r < Params.world_width; r++) {
+            for (int c = 0; c < Params.world_height; c++) {
+                if (grid[r][c] != null) { 
+                    Critter crit = grid[r][c];
+                    Shape s = crit.getIcon();
+                    gridPane.add(s, r, c); 
+                }
+            }
 		}
 
-		System.out.print('+');																
-		for (int i = 0; i < (Params.world_width); i++) {
-			System.out.print('-');
-		}
-		System.out.print('+');
-		System.out.println();
-
-		
 	}
+
 	/**
 	 * Checks if critter1 and critter 2 are willing to fight. Then uses their dice rolls to engage them in a fight if necessary.
 	 * Changed critters' energies based on results of fight.
@@ -384,4 +517,56 @@ public abstract class Critter {
 			}
 		}
 	}
+	private Shape getIcon() {
+        Shape s = null;
+        Color outline = viewOutlineColor();
+        Color fill = viewFillColor();
+        CritterShape critShape = viewShape();
+        Polygon polygon;
+
+        switch(critShape) {
+        		case CIRCLE: s = new Circle(size/2);
+        			s.setFill(fill);
+        			break;
+            case SQUARE: s = new Rectangle(size, size);
+                s.setFill(fill);
+                break;
+            case STAR: polygon = new Polygon();
+                polygon.getPoints().addAll(new Double[]{
+                        (double) (size - 1) / 2, 2.5, 
+                        (double) (size - 1) / 3, (double) (size - 1) / 3, 0.0, (double)  (size - 1) / 3,
+                        (double) (size - 1) / 3, (double) (size - 1) / 1.5,
+                        (double) (size - 1) / 6, (double) size - 1,
+                        (double) (size - 1) / 2, (double) (size - 1) / 1.5,
+                        (double) (size - 1) / 1.1667, (double) size - 1,
+                        (double) (size - 1) / 1.5, (double) (size - 1) / 1.5,
+                        (double) size - 3.5, (double) (size - 1) / 3, 
+                        (double) (size - 1) / 1.5, (double) (size - 1) / 3});
+                s = polygon;
+                s.setFill(fill);
+                break;
+            case DIAMOND: polygon = new Polygon();
+                polygon.getPoints().addAll(new Double[]{
+                        (double) (size - 1) / 2, 1.0, 
+                        0.0, (double) (size - 1) / 2,
+                        (double) (size - 1) / 2, (double) size - 1,
+                        (double) size - 2, (double) (size - 1) / 2}); 
+                s = polygon;
+                s.setFill(fill);
+                break;
+            case TRIANGLE: polygon = new Polygon();
+                polygon.getPoints().addAll(new Double[]{
+                        (double) (size/2 - 1), 0.0, 
+                        0.0, (double) size - 2, 
+                        (double) size - 2, (double) size - 2});
+                s = polygon;
+                s.setFill(fill);
+                break;
+        }
+        // set the outline
+        s.setStroke(outline);
+        return s;
+    }
+
+	
 }

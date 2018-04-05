@@ -11,6 +11,8 @@ package assignment4;
  */
 
 import java.util.List;
+
+import assignment4.Critter.CritterShape;
 /**
  * Critter only moves in diagonals
  * @author Vaidehi
@@ -54,6 +56,15 @@ public class Critter1 extends Critter.TestCritter{
 
 	public Critter1() {
 		direction = Critter.getRandomInt(8);
+	}
+
+	@Override
+	public CritterShape viewShape() {
+		return CritterShape.DIAMOND;
+
+	}
+	public javafx.scene.paint.Color viewColor() { 
+		return javafx.scene.paint.Color.CORAL; 
 	}
 
 }

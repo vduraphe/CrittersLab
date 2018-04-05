@@ -49,6 +49,13 @@ public class Critter2 extends Critter.TestCritter{
 	public Critter2() {
 		direction = Critter.getRandomInt(8);
 	}
-	
+
+	@Override
+	public CritterShape viewShape() {
+		return CritterShape.TRIANGLE;
+	}
+	public javafx.scene.paint.Color viewColor() { 
+		return javafx.scene.paint.Color.GOLD; 
+	}
 }
 

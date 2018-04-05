@@ -18,4 +18,9 @@ public class MyCritter7 extends TestCritter {
 	public String toString () {
 		return "7";
 	}
+
+	@Override
+	public CritterShape viewShape() {
+		return CritterShape.TRIANGLE;
+	}
 }

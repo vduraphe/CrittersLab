@@ -60,6 +60,14 @@ public class Critter4 extends Critter.TestCritter{
 	public Critter4() {
 		direction = Critter.getRandomInt(8);
 	}
+
+	@Override
+	public CritterShape viewShape() {
+		return CritterShape.SQUARE;
+	}
+	public javafx.scene.paint.Color viewColor() { 
+		return javafx.scene.paint.Color.DARKSLATEBLUE; 
+	}
 	
 }
 

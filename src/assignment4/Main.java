@@ -18,7 +18,33 @@ import java.lang.Integer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.ArcType;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+import javafx.application.Application;
+import javafx.event.*;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+
 import static java.lang.Float.NaN;
+
 
 
 /*
@@ -26,172 +52,159 @@ import static java.lang.Float.NaN;
  * input file is optional.  If input file is specified, the word 'test' is optional.
  * May not use 'test' argument without specifying input file.
  */
-public class Main {
+public class Main extends Application {
+	
+    //static GridPane gp = Critter.displayWorld();
+	Stage mainStage;
+	private static String myPackage;
+	 static {
+	        myPackage = Critter.class.getPackage().toString().split(" ")[1];
+	    }
 
-    static Scanner kb;	// scanner connected to keyboard input, or input file
-    private static String inputFile;	// input file, used instead of keyboard input if specified
-    static ByteArrayOutputStream testOutputString;	// if test specified, holds all console output
-    private static String myPackage;	// package of Critter file.  Critter cannot be in default pkg.
-    private static boolean DEBUG = false; // Use it or not, as you wish!
-    static PrintStream old = System.out;	// if you want to restore output to console
-
-
-    // Gets the package name.  The usage assumes that Critter and its subclasses are all in the same package.
-    static {
-        myPackage = Critter.class.getPackage().toString().split(" ")[1];
+    public static void main(String[] args) {
+    		launch(args);
     }
-
-    /**
-     * Main method.
-     * @param args args can be empty.  If not empty, provide two parameters -- the first is a file name, 
-     * and the second is test (for test output, where all output to be directed to a String), or nothing.
-     * @throws InvalidCritterException 
-     * @throws SecurityException 
-     * @throws NoSuchMethodException 
-     * @throws InvocationTargetException 
-     * @throws IllegalArgumentException 
-     */
-    public static void main(String[] args) throws InvalidCritterException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException { 
-    		if (args.length != 0) {
-            try {
-                	inputFile = args[0];
-                	kb = new Scanner(new File(inputFile));	
-            } catch (FileNotFoundException e) {
-                	System.out.println("USAGE: java Main OR java Main <input file> <test output>");
-                	e.printStackTrace();
-            } catch (NullPointerException e) {
-                	System.out.println("USAGE: java Main OR java Main <input file>  <test output>");
-            }
-            if (args.length >= 2) {
-                	if (args[1].equals("test")) { // if the word "test" is the second argument to java
-                		// Create a stream to hold the output
-                		testOutputString = new ByteArrayOutputStream();
-                		PrintStream ps = new PrintStream(testOutputString);
-                    	// Save the old System.out.
-                		old = System.out;
-                		// Tell Java to use the special stream; all console output will be redirected here from now
-                		System.setOut(ps);
-                }
-            }
-        } else { // if no arguments to main
-            kb = new Scanner(System.in); // use keyboard and console
-        }
-
-        /* Do not alter the code above for your submission. */
-        /* Write your code below. */
-    		String input = "";
-        boolean isQuit = false;
-        while(!isQuit){
-            System.out.print("critters>");
-            input = kb.nextLine();
-            List<String> command = parse(input);
-            switch(command.get(0)){
-                case "quit":  
-                		if (command.size() > 1 ) {
-                			System.out.println("error processing: " + input);
-                			continue;
-                		}
-                		isQuit = true;
-                    break;
-                case "show":  
-                		if(command.size() > 1) {
-                			System.out.println("error processing: " + input);
-                			continue;
-                		}
-                		Critter.displayWorld();
-                    break;
-
-                case "step":  
-                		int count = 1;
-                		if(command.size() > 2) {
-                			System.out.println("error processing: " + input);
-                			continue;
-                		}
-                		else if(command.size() == 2){
-                			try {
-                				count = Integer.parseInt(command.get(1));
-            				
-                			} catch(Exception e) {
-                				System.out.println("error processing: " + input);
-                				continue;
-                			}
-                		} else {
-                			count = Integer.parseInt(command.get(1));
-                		}
-                		
-                		for(int i = 0; i < count; i++){
-                			Critter.worldTimeStep();
-                		}
-                		break;
-
-                case "seed":
-                		if(command.size() > 2 && command.size() < 2) {
-                			System.out.println("error processing: " + input);
-                			continue;
-                		}
-                		try {
-                			Critter.setSeed(Integer.parseInt(command.get(1)));
-                		} catch(Exception e){
-                			System.out.println("error processing: " + input);
-                			continue;
-                		}
-                		break;
-                case "make":
-                		count = 1;
-                		if( (command.size() <= 1) || (command.size() > 3)) {
-                			System.out.println("error processing: " + input);
-                			continue;
-                		}
-                		else if(command.size() == 3) {
-                			try {
-                				count = Integer.parseInt(command.get(2));
-            				
-                			} catch(Exception e) {
-                				System.out.println("error processing: " + input);
-                				continue;
-                			}
-                		}
-                		try {
-                			for(int i=0; i<count; i++) {
-                				Critter.makeCritter(command.get(1));
-                			}
-                		} catch(InvalidCritterException e){
-                			System.out.println("error processing: " + e);
-                			continue;
-                		}
-                		break;
-                case "stats":
-                    if(command.size() < 2){
-                        break;
-                    }
-                    List<Critter> instances = Critter.getInstances(command.get(1));
-                    try {
-                        Class<?> c = Class.forName(myPackage + "." + command.get(1));
-                        java.lang.reflect.Method runStats = c.getMethod("runStats", List.class);
-    						runStats.invoke(c, instances);
-                    }
-                    catch (Exception e) {
-                        throw new InvalidCritterException(command.get(1));
-                
-                    }
-                    break;
-
-                default:  break;
-            }
-        }
-        
-        /* Write your code above */
-        System.out.flush();
-
-    }
+    
     /**
      * Parses the input into a list for processing
      * @param input String input from console
      * @return list of words in input
      */
-    static List<String> parse(String input){
-        List<String> output = new ArrayList<>();
-        output = Arrays.asList(input.split(" "));
-        return output;
-    }
+
+	@Override
+	public void start(Stage args) throws Exception {
+		try {
+			mainStage = args;
+			GridPane gp = new GridPane();
+			Scene scene = new Scene(gp, 600,600);
+			mainStage.setScene(scene);
+			mainStage.setTitle("Critters");
+			mainStage.show();
+			gp.setGridLinesVisible(true);
+			Critter.displayWorld(gp);
+			Stage stage = new Stage();
+	        stage.setTitle("Controller");
+	        stage.show();
+	        
+	        Stage stage2 = new Stage();
+	        FlowPane consolePane = new FlowPane();
+	        Scene consoleScene = new Scene(consolePane, 500, 200);
+	        stage2.setScene(consoleScene);
+	        stage2.show();
+
+	        GridPane control = new GridPane();
+	        Scene functionScene = new Scene(control, 250, 250);
+	        stage.setScene(functionScene);
+	        control.setHgap(10);
+	        control.setVgap(10);
+	        control.setPadding(new Insets(10, 10, 10, 10));
+	        
+	        //create buttons
+	        Button showButton = new Button("Show");
+	        Button makeButton = new Button("Make");
+	        Button stepButton = new Button("Step");
+	        Button statsButton = new Button("Stats");
+	        Button seedButton = new Button("Seed");
+	        Button quitButton = new Button("Quit");
+	       
+	        //add buttons
+	        control.add(showButton, 0, 0);
+			control.add(makeButton, 0, 1);
+	        control.add(stepButton,0, 2);
+	        control.add(statsButton,0, 3);
+	        control.add(seedButton,0, 4);
+	        control.add(quitButton,0, 5);
+	        
+	        TextField makeTextField = new TextField();
+	        HBox makeBoxClass = new HBox(makeTextField);
+	        makeBoxClass.setMaxWidth(100);
+	        TextField makeNumTextField = new TextField();
+	        HBox makeBoxNum = new HBox(makeNumTextField);
+	        makeBoxNum.setMaxWidth(40);
+	        TextField stepsNumTextField = new TextField();
+	        HBox stepsBox = new HBox(stepsNumTextField);
+	        stepsBox.setMaxWidth(40);
+	        TextField statsTextField = new TextField();
+	        HBox statsClassBox = new HBox(statsTextField);
+	        statsClassBox.setMaxWidth(100);
+	        TextField seedNumTextField = new TextField();
+	        HBox seedBox = new HBox(seedNumTextField);
+	        seedBox.setMaxWidth(40);
+	        
+	        control.add(makeBoxClass,1, 1);
+	        control.add(makeBoxNum,2, 1);
+	        control.add(stepsBox,1, 2);
+	        control.add(statsClassBox,1, 3);
+	        control.add(seedBox,1, 4);
+
+	        Label lbl = new Label();
+	        lbl.setText("Console Text");
+	        consolePane.getChildren().add(lbl);
+	        
+	        //button actions
+	        
+	        showButton.setOnAction(e-> {
+	            Critter.displayWorld(gp);
+	        });
+	        
+	        makeButton.setOnAction(e-> {
+	        		try {
+	        			System.out.println(makeNumTextField.getText());
+	        			for(int i=0; i < Integer.parseInt(makeNumTextField.getText()); i++)
+	        			Critter.makeCritter(makeTextField.getText());
+	        		} catch(IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | InvalidCritterException f){
+	        			System.out.println("error processing: " + f);
+	        		}
+	        		Critter.displayWorld(gp);
+
+	        });
+	        
+	        stepButton.setOnAction(e-> {
+	        		int count = 0;
+	        		try {
+	        			System.out.println(stepsNumTextField.getText());
+	        			count = Integer.parseInt(stepsNumTextField.getText());
+	        			for (int i = 0; i < count; i++) {
+	        				Critter.worldTimeStep();
+	        			}
+	        		} catch (IllegalArgumentException f){
+	        			System.out.println("error processing: " + f);
+	        		}
+	        		Critter.displayWorld(gp);
+	        });
+	        
+	        statsButton.setOnAction(e-> {
+	        		try {
+	        			List<Critter> instances = Critter.getInstances(statsTextField.getText());
+	        			Class<?> c = Class.forName(myPackage + "." + statsTextField.getText());
+                        java.lang.reflect.Method runStats = c.getMethod("runStats", List.class);
+    					String result = (String) runStats.invoke(c, instances);
+    					lbl.setText(result);
+	        		} catch (IllegalArgumentException | InvalidCritterException | IllegalAccessException | InvocationTargetException | ClassNotFoundException | NoSuchMethodException | SecurityException f){
+	        			System.out.println("error processing: " + f);
+	        		}
+	        });
+	        
+	        seedButton.setOnAction(e-> {
+	        		try {
+	        			Critter.setSeed(Integer.parseInt(seedNumTextField.getText()));
+	        		} catch(Exception f){
+	        			System.out.println("error processing: " + f);
+	        		}
+	        });
+	        
+	        quitButton.setOnAction(e-> {
+	        	
+	        });
+	        
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+			
+
+		
+	
+       
+
+	}
 }

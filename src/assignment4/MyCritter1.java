@@ -7,6 +7,7 @@ public class MyCritter1 extends Critter.TestCritter {
 	@Override
 	public void doTimeStep() {
 		walk(0);
+		
 	}
 
 	@Override
@@ -21,5 +22,10 @@ public class MyCritter1 extends Critter.TestCritter {
 	
 	public void test (List<Critter> l) {
 		
+	}
+
+	@Override
+	public CritterShape viewShape() {
+		return CritterShape.CIRCLE;
 	}
 }
